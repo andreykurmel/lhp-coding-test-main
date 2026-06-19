@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\ResolveEventLocationAction;
 use App\Models\Event;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
@@ -15,6 +14,17 @@ class EventController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('Events/Index', [
+            'filters' => [
+                'status' => $request->status,
+                'from' => $request->input('from', '2023-01-01'),
+            ],
+            'statuses' => ['draft', 'published', 'cancelled', 'sold_out'],
+        ]);
+    }
+
+    public function visualOne(Request $request): Response
+    {
+        return Inertia::render('Events/VisualOne', [
             'filters' => [
                 'status' => $request->status,
                 'from' => $request->input('from', '2023-01-01'),
@@ -38,8 +48,6 @@ class EventController extends Controller
 
     public function show(Event $event): Response
     {
-        $code = app(ResolveEventLocationAction::class);
-        dd($code->handle(51.5074, -0.1278));
         $event->load('user');
 
         return Inertia::render('Events/Show', [

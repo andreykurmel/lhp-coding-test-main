@@ -39,6 +39,9 @@ class EventFactory extends Factory
             'payload' => [
                 'name' => ucwords(fake()->words(3, true)),
                 'category' => $type,
+                'images' => [
+                    fake()->randomElement(['/storage/images/event1.jpeg', '/storage/images/event2.jpg', '/storage/images/event3.jpg']),
+                ],
                 'venue' => ['name' => fake()->company(), 'capacity' => fake()->numberBetween(20, 50000)],
                 'location' => ['lat' => $lat, 'lng' => $lng],
                 'schedule' => ['starts_at' => $startsAt, 'ends_at' => $endsAt],
