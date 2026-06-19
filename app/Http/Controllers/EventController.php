@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\ResolveEventLocationAction;
 use App\Models\Event;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
@@ -37,6 +38,8 @@ class EventController extends Controller
 
     public function show(Event $event): Response
     {
+        $code = app(ResolveEventLocationAction::class);
+        dd($code->handle(51.5074, -0.1278));
         $event->load('user');
 
         return Inertia::render('Events/Show', [

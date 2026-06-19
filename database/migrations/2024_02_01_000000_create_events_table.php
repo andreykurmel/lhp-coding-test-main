@@ -14,8 +14,13 @@ return new class extends Migration
             $table->string('type');
             $table->string('status');
             $table->unsignedBigInteger('created_time')->nullable();
+            $table->unsignedBigInteger('starts_at')->nullable();
+            $table->unsignedBigInteger('ends_at')->nullable();
             $table->decimal('latitude', 10, 7)->nullable();
             $table->decimal('longitude', 10, 7)->nullable();
+            $table->string('country')->nullable();
+            $table->string('city')->nullable();
+            $table->text('address')->nullable();
             $table->longText('payload');
             $table->timestamps();
 

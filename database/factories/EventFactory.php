@@ -19,20 +19,29 @@ class EventFactory extends Factory
         $lat = fake()->latitude();
         $lng = fake()->longitude();
         $startsAt = fake()->numberBetween(strtotime('-1 year'), strtotime('+1 year'));
+        $endsAt = $startsAt + 7200;
+        $country = fake()->country();
+        $city = fake()->city();
+        $address = fake()->streetAddress().', '.$city.', '.$country;
 
         return [
             'user_id' => User::factory(),
             'type' => $type,
             'status' => fake()->randomElement(['draft', 'published', 'cancelled', 'sold_out']),
             'created_time' => $startsAt,
+            'starts_at' => $startsAt,
+            'ends_at' => $endsAt,
             'latitude' => $lat,
             'longitude' => $lng,
+            'country' => $country,
+            'city' => $city,
+            'address' => $address,
             'payload' => [
                 'name' => ucwords(fake()->words(3, true)),
                 'category' => $type,
                 'venue' => ['name' => fake()->company(), 'capacity' => fake()->numberBetween(20, 50000)],
                 'location' => ['lat' => $lat, 'lng' => $lng],
-                'schedule' => ['starts_at' => $startsAt, 'ends_at' => $startsAt + 7200],
+                'schedule' => ['starts_at' => $startsAt, 'ends_at' => $endsAt],
                 'pricing' => ['currency' => 'USD', 'min_price' => fake()->randomFloat(2, 0, 250)],
             ],
         ];

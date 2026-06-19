@@ -16,6 +16,8 @@ class Event extends Model
 
     protected $casts = [
         'payload' => 'array',
+        'starts_at' => 'integer',
+        'ends_at' => 'integer',
         'latitude' => 'float',
         'longitude' => 'float',
     ];

@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'timezone' => 'UTC',
         ]);
 
         // Defaults to 1,250,000 events (≈2.5 GB; ~3s first listing load on a
