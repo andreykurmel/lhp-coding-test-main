@@ -6,6 +6,7 @@ use App\Models\Event;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -17,6 +18,8 @@ class EventController extends Controller
             'filters' => [
                 'status' => $request->status,
                 'from' => $request->input('from', '2023-01-01'),
+                'to' => $request->input('to'),
+                'location' => $request->input('location'),
             ],
             'statuses' => ['draft', 'published', 'cancelled', 'sold_out'],
         ]);
@@ -28,6 +31,25 @@ class EventController extends Controller
             'filters' => [
                 'status' => $request->status,
                 'from' => $request->input('from', '2023-01-01'),
+                'to' => $request->input('to'),
+                'location' => $request->input('location'),
+            ],
+            'statuses' => ['draft', 'published', 'cancelled', 'sold_out'],
+        ]);
+    }
+
+    public function visualTwo(Request $request): Response
+    {
+        $now = Carbon::now();
+        $defaultFrom = $now->startOfMonth()->toDateString();
+        $defaultTo = $now->endOfMonth()->toDateString();
+
+        return Inertia::render('Events/VisualTwo', [
+            'filters' => [
+                'status' => $request->status,
+                'from' => $request->input('from', $defaultFrom),
+                'to' => $request->input('to', $defaultTo),
+                'location' => $request->input('location'),
             ],
             'statuses' => ['draft', 'published', 'cancelled', 'sold_out'],
         ]);
@@ -64,6 +86,31 @@ class EventController extends Controller
 
         $events = Event::with('user')
             ->when($request->status, fn ($q, $s) => $q->where('status', $s))
+            ->when($request->from, function ($q, $from) {
+                try {
+                    $timestamp = Carbon::parse($from)->startOfDay()->timestamp;
+
+                    return $q->where('starts_at', '>=', $timestamp);
+                } catch (\Exception $e) {
+                    return $q;
+                }
+            })
+            ->when($request->to, function ($q, $to) {
+                try {
+                    $timestamp = Carbon::parse($to)->endOfDay()->timestamp;
+
+                    return $q->where('starts_at', '<=', $timestamp);
+                } catch (\Exception $e) {
+                    return $q;
+                }
+            })
+            ->when($request->location, function ($q, $loc) {
+                return $q->where(fn ($query) => $query
+                    ->where('city', 'like', "%{$loc}%")
+                    ->orWhere('country', 'like', "%{$loc}%")
+                    ->orWhere('address', 'like', "%{$loc}%")
+                );
+            })
             ->orderByDesc('created_time')
             ->paginate(50)
             ->withQueryString();

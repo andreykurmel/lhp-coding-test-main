@@ -33,13 +33,15 @@ interface EventRow {
 }
 
 const props = defineProps<{
-    filters: { status: string | null; from: string };
+    filters: { status: string | null; from: string | null; to: string | null; location: string | null };
     statuses: string[];
 }>();
 
 const form = reactive({
     status: props.filters.status ?? '',
     from: props.filters.from ?? '',
+    to: props.filters.to ?? '',
+    location: props.filters.location ?? '',
 });
 
 const rows = ref<EventRow[]>([]);
@@ -72,6 +74,8 @@ async function loadMore() {
     const params = new URLSearchParams({ page: String(page.value + 1) });
     if (form.status) params.set('status', form.status);
     if (form.from) params.set('from', form.from);
+    if (form.to) params.set('to', form.to);
+    if (form.location) params.set('location', form.location);
 
     try {
         const response = await fetch(`/events/data?${params.toString()}`, {
@@ -202,6 +206,25 @@ onBeforeUnmount(() => observer?.disconnect());
                     v-model="form.from"
                     type="date"
                     class="h-9 rounded-md border border-input bg-background px-3 text-sm"
+                />
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-xs text-muted-foreground" for="to">To</label>
+                <input
+                    id="to"
+                    v-model="form.to"
+                    type="date"
+                    class="h-9 rounded-md border border-input bg-background px-3 text-sm"
+                />
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-xs text-muted-foreground" for="location">Location</label>
+                <input
+                    id="location"
+                    v-model="form.location"
+                    type="text"
+                    placeholder="Search by city, country..."
+                    class="h-9 rounded-md border border-input bg-background px-3 text-sm w-48"
                 />
             </div>
             <Button type="button" @click.prevent="applyFilters">Filter</Button>
