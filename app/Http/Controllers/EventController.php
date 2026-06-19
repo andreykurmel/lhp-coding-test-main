@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\RegisterAttendeeAction;
+use App\Http\Requests\RegisterAttendeeRequest;
 use App\Models\Event;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
@@ -70,10 +73,25 @@ class EventController extends Controller
 
     public function show(Event $event): Response
     {
-        $event->load('user');
+        $event->load([
+            'user',
+            'attendees' => fn ($query) => $query
+                ->select(['id', 'event_id', 'name', 'status', 'created_at'])
+                ->latest(),
+        ]);
 
         return Inertia::render('Events/Show', [
             'event' => $event,
+        ]);
+    }
+
+    public function register(RegisterAttendeeRequest $request, Event $event, RegisterAttendeeAction $registerAttendee): RedirectResponse
+    {
+        $registerAttendee->execute($event, $request->validated());
+
+        return back()->with('toast', [
+            'type' => 'success',
+            'message' => 'Registration saved. Confirmation email sent.',
         ]);
     }
 
